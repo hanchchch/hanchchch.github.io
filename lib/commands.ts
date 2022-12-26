@@ -17,3 +17,15 @@ export const createCommandLs: (files: TermFile[]) => TermCommand =
     term.write(filesToDisplay.map(mapper).join("\n"));
     return 0;
   };
+
+export const createCommandCat: (files: TermFile[]) => TermCommand =
+  (files) => (args, term) => {
+    term.clear();
+    const file = files.find((file) => file.name === args[1]);
+    if (!file || file.directory) {
+      term.write(`cat: ${args[1]}: No such file or directory`);
+      return 1;
+    }
+    term.write(file.content || "");
+    return 0;
+  };
