@@ -20,12 +20,12 @@ export const createCommandLs: (files: TermFile[]) => TermCommand =
 
 export const createCommandCat: (files: TermFile[]) => TermCommand =
   (files) => (args, term) => {
-    term.clear();
     const file = files.find((file) => file.name === args[1]);
     if (!file || file.directory) {
       term.write(`cat: ${args[1]}: No such file or directory`);
       return 1;
     }
+    term.clear();
     term.write(file.content || "");
     return 0;
   };

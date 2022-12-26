@@ -4,7 +4,7 @@ import { TermFile } from "../lib/interfaces";
 import { createCommandCat, createCommandLs } from "../lib/commands";
 import { sleep } from "../lib/time";
 import { erase } from "../lib/terminal";
-import { contact, experiences, stacks } from "../lib/files";
+import { contact, experiences, educations } from "../lib/files";
 
 const Terminal = dynamic(
   () => import("../components/Terminal").then((mod) => mod.Terminal),
@@ -28,8 +28,8 @@ export default function Home() {
     { perm: "rwxr-xr-x", name: ".", directory: true },
     { perm: "rwxr-xr-x", name: "..", directory: true },
     contact,
+    educations,
     experiences,
-    stacks,
   ]);
 
   return (
@@ -37,9 +37,12 @@ export default function Home() {
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
       <Terminal
+        prefix={
+          " hanch \x1b[1;34m ~\x1b[0m \x1b[1;32m  main\x1b[0m \x1b[0;32m❯\x1b[0m"
+        }
         initializer={async (term) => {
           term.focus();
-          term.resize(80, 40);
+          term.resize(120, 40);
           term.write("Loading ");
           for (let i = 0; i < 2; i++) {
             for (let j = 0; j < 3; j++) {
