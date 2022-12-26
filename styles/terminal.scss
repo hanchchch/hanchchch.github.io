@@ -1,0 +1,11 @@
+@import "node_modules/xterm/css/xterm.css";
+
+@font-face {
+  font-family: "Fira Code";
+  src: url("./fonts/fira-code/regular.ttf")format("truetype");
+}
+
+.xterm-rows {
+  font-family: "Fira Code", monospace !important; 
+}
+
