@@ -32,9 +32,10 @@ export function Terminal({
   const [line, setLine] = useState<string>("");
   const [opened, setOpened] = useState<boolean>(false);
   const [initialized, setInitialized] = useState<boolean>(false);
+  const [processing, setProcessing] = useState<boolean>(false);
 
   const handleCommand = useCallback(
-    (command: string) => {
+    async (command: string) => {
       if (!term) {
         return;
       }
@@ -44,7 +45,9 @@ export function Terminal({
 
       const args = strippedCommand.split(" ");
       if (args[0] in commands) {
-        commands[args[0]](args, term);
+        setProcessing(true);
+        await commands[args[0]](args, term);
+        setProcessing(false);
       } else if (args[0] === "") {
         // do nothing
       } else {
@@ -56,6 +59,18 @@ export function Terminal({
     },
     [term, commands, onCommand]
   );
+
+  const reset = useCallback(() => {
+    if (!term) {
+      return;
+    }
+    term.dispose();
+    setProcessing(false);
+    setInitialized(false);
+    setOpened(false);
+    setLine("");
+    setTerm(undefined);
+  }, [term]);
 
   useEffect(() => {
     if (term || !terminal.current) {
@@ -94,6 +109,10 @@ export function Terminal({
       if (e.type === "keyup") {
         return true;
       }
+      if (e.ctrlKey && e.key === "d") {
+        reset();
+        return false;
+      }
       if (e.key === "ArrowUp") {
         setLine(upperHistory());
         return false;
@@ -107,7 +126,7 @@ export function Terminal({
       }
       return true;
     });
-  }, [term, upperHistory, lowerHistory]);
+  }, [term, upperHistory, lowerHistory, reset]);
 
   useEffect(() => {
     if (!term || !opened) {
@@ -120,7 +139,7 @@ export function Terminal({
   }, [term, opened, initializer, initialized]);
 
   useEffect(() => {
-    if (!term || !initialized) {
+    if (!term || !initialized || processing) {
       return;
     }
     const lastChar = line.charCodeAt(line.length - 1);
@@ -144,7 +163,16 @@ export function Terminal({
     } else {
       term.write(line);
     }
-  }, [term, line, handleCommand, initialized, prefix, commands, autoComplete]);
+  }, [
+    term,
+    line,
+    handleCommand,
+    initialized,
+    prefix,
+    commands,
+    autoComplete,
+    processing,
+  ]);
 
   return <div ref={terminal} style={{ width, height }} />;
 }
