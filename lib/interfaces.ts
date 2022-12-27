@@ -6,5 +6,6 @@ export interface TermFile {
   perm: string;
   name: string;
   directory: boolean;
+  date: Date;
   content?: string;
 }

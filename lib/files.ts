@@ -2,6 +2,7 @@ export const experiences = {
   perm: "r--r--r--",
   name: "experiences",
   directory: false,
+  date: new Date(2022, 11, 27),
   content: `
                         _                    
   _____ ___ __  ___ _ _(_)___ _ _  __ ___ ___
@@ -55,6 +56,7 @@ export const educations = {
   perm: "r--r--r--",
   name: "education",
   directory: false,
+  date: new Date(2022, 11, 27),
   content: `
          _              _   _             
   ___ __| |_  _ __ __ _| |_(_)___ _ _  ___
@@ -81,6 +83,7 @@ export const contact = {
   perm: "r--r--r--",
   name: "contact",
   directory: false,
+  date: new Date(2022, 11, 27),
   content: `
             _           _   
  __ ___ _ _| |_ __ _ __| |_ 

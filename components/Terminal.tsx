@@ -1,15 +1,29 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { Terminal as XTerm } from "xterm";
 import { TermCommand } from "../lib/interfaces";
 
+const fontSize = 9;
+
 interface TerminalProps {
+  width?: CSSProperties["width"];
+  height?: CSSProperties["height"];
+  autoComplete?: (line: string, term: XTerm) => string;
   initializer?: (term: XTerm) => Promise<void>;
+  onCommand?: (line: string, term: XTerm) => void;
+  upperHistory?: () => string;
+  lowerHistory?: () => string;
   commands?: { [command: string]: TermCommand };
   prefix?: string;
 }
 
 export function Terminal({
+  width,
+  height,
+  autoComplete,
   initializer = () => Promise.resolve(),
+  onCommand = () => {},
+  upperHistory = () => "",
+  lowerHistory = () => "",
   commands = {},
   prefix = " \x1b[1;34m  ~\x1b[0m \x1b[1;32m  main\x1b[0m \x1b[0;32m❯\x1b[0m",
 }: TerminalProps) {
@@ -24,19 +38,23 @@ export function Terminal({
       if (!term) {
         return;
       }
-      term.write(`\n`);
+      term.writeln("");
       const strippedCommand = command.slice(0, -1);
+      onCommand(strippedCommand, term);
+
       const args = strippedCommand.split(" ");
       if (args[0] in commands) {
         commands[args[0]](args, term);
+      } else if (args[0] === "") {
+        // do nothing
       } else {
         term.write(`command not found: ${args[0]}`);
       }
-      term.write(`\n`);
-      term.write(`\n`);
+      term.writeln("");
+      term.writeln("");
       setLine("");
     },
-    [term, commands]
+    [term, commands, onCommand]
   );
 
   useEffect(() => {
@@ -50,6 +68,10 @@ export function Terminal({
     if (!term || !terminal.current) {
       return;
     }
+    term.resize(
+      Math.floor(terminal.current.clientWidth / fontSize),
+      Math.floor(terminal.current.clientHeight / (fontSize * 2))
+    );
     term.onData((data: string) => {
       const char = data.charCodeAt(0);
       if (char === 0x7f) {
@@ -65,6 +87,29 @@ export function Terminal({
   }, [terminal, term]);
 
   useEffect(() => {
+    if (!term) {
+      return;
+    }
+    term.attachCustomKeyEventHandler((e) => {
+      if (e.type === "keyup") {
+        return true;
+      }
+      if (e.key === "ArrowUp") {
+        setLine(upperHistory());
+        return false;
+      } else if (e.key === "ArrowDown") {
+        setLine(lowerHistory());
+        return false;
+      } else if (e.key === "ArrowRight") {
+        return false;
+      } else if (e.key === "ArrowLeft") {
+        return false;
+      }
+      return true;
+    });
+  }, [term, upperHistory, lowerHistory]);
+
+  useEffect(() => {
     if (!term || !opened) {
       return;
     }
@@ -78,11 +123,17 @@ export function Terminal({
     if (!term || !initialized) {
       return;
     }
-    if (line.charCodeAt(line.length - 1) === 0x0d) {
+    const lastChar = line.charCodeAt(line.length - 1);
+    if (lastChar === 0x0d) {
       handleCommand(line);
       return;
+    } else if (lastChar === 0x09) {
+      if (autoComplete) {
+        setLine(autoComplete(line.slice(0, line.length - 1), term));
+      }
+      return;
     }
-    term.write(`\r${prefix} `);
+    term.write(`\x1b[2K\r${prefix} `);
     if (commands.hasOwnProperty(line.split(" ")[0])) {
       term.write(
         line.replace(
@@ -93,12 +144,7 @@ export function Terminal({
     } else {
       term.write(line);
     }
-    term.write(` \b`);
-  }, [term, line, handleCommand, initialized, prefix, commands]);
+  }, [term, line, handleCommand, initialized, prefix, commands, autoComplete]);
 
-  return (
-    <>
-      <div ref={terminal} />
-    </>
-  );
+  return <div ref={terminal} style={{ width, height }} />;
 }
