@@ -33,8 +33,6 @@ export const createCommandCat: (files: TermFile[]) => TermCommand =
       term.write(`cat: ${args[1]}: No such file or directory`);
       return 1;
     }
-    term.clear();
     term.write(file.content || "");
-    term.scrollToTop();
     return 0;
   };
