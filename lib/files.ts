@@ -9,7 +9,9 @@ export const experiences = {
  / -_) \\ / '_ \\/ -_) '_| / -_) ' \\/ _/ -_|_-<
  \\___/_\\_\\ .__/\\___|_| |_\\___|_||_\\__\\___/__/
          |_|                                 
-  
+
+  ---
+
   \x1b[1;36m MLOps Engineer\x1b[0m
   \x1b[1;34mCorca, Inc.\x1b[0m
   \x1b[1;30m07/2021 - today\x1b[0m
@@ -36,7 +38,7 @@ export const experiences = {
   \x1b[1;30m07/2021 - 09/2021\x1b[0m
   - Developed Smart Contract and web backend for the etherium based NFT gallery 'Mars Green' (https://marsgreen.co).
   - Wrote Smart Contract with Solidity and web backend with express.js and ethers.js.
-  -  and the web server to enable continuous tracking and managing of Smart Contract through the web site.
+  - Enabled continuous tracking and managing of Smart Contract through the web site.
   - Deployed and maintained the service with AWS ECS Fargate.
   - Built the CI/CD pipeline with AWS CodePipeline.
     
@@ -63,6 +65,8 @@ export const educations = {
  / -_) _\` | || / _/ _\` |  _| / _ \\ ' \\(_-<
  \\___\\__,_|\\_,_\\__\\__,_|\\__|_\\___/_||_/__/
 
+ ---
+
   \x1b[1;36mBSc in Information Security\x1b[0m
   \x1b[1;34mKorea University\x1b[0m
   \x1b[1;32mSeoul, Korea\x1b[0m
@@ -85,10 +89,12 @@ export const contact = {
   directory: false,
   date: new Date(2022, 11, 27),
   content: `
-            _           _   
- __ ___ _ _| |_ __ _ __| |_ 
-/ _/ _ \\ ' \\  _/ _\` / _|  _|
-\\__\\___/_||_\\__\\__,_\\__|\\__|
+             _           _   
+  __ ___ _ _| |_ __ _ __| |_ 
+ / _/ _ \\ ' \\  _/ _\` / _|  _|
+ \\__\\___/_||_\\__\\__,_\\__|\\__|
+
+ ---
 
   Chung-Hwan Han
   Seoul, Korea

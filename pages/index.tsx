@@ -19,7 +19,9 @@ const title = `
   ██║  ██║██║  ██║██║ ╚████║╚██████╗██║  ██║
   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝
 
-  Welcome! See available commands with \`help\`.
+  Welcome! Run \x1b[1;32mhelp\x1b[0m to get started.
+  If you want to interrupt a command or restart the terminal, press \x1b[1;32mCtrl + D\x1b[0m.
+  Seems too complicated? Just type \x1b[1;32mresume\x1b[0m and press enter to check out my resume.
 
 `;
 
@@ -134,7 +136,7 @@ export default function Home() {
         commands={{
           help: (args, term) => {
             term.write(
-              `Available commands:\n\n  - help\n  - clear\n  - ls\n  - cat`
+              `Available commands:\n\n  - help\n  - clear\n  - ls\n  - cat\n  - resume`
             );
             return 0;
           },
@@ -144,6 +146,29 @@ export default function Home() {
           },
           ls: createCommandLs(files),
           cat: createCommandCat(files),
+          resume: async (args, term) => {
+            for (const section of [educations, experiences, contact]) {
+              const [header, body] = section.content.split("---");
+              for (const line of header.split("\n")) {
+                term.writeln(line);
+                await sleep(100);
+              }
+              for (const paragraph of body.split("\n\n")) {
+                for (const line of paragraph.split("\n")) {
+                  for (const character of line.split("")) {
+                    term.write(character);
+                    await sleep(Math.random() * 50 + 10);
+                  }
+                  term.writeln("");
+                  await sleep(50);
+                }
+                term.writeln("");
+                await sleep(500);
+              }
+              await sleep(3000);
+            }
+            return 0;
+          },
         }}
         autoComplete={(line, term) => {
           if (line.startsWith("cat ")) {
