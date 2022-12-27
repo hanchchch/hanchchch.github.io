@@ -88,107 +88,114 @@ export default function Home() {
     <div
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
-      <Terminal
-        width="100vw"
-        height="100vh"
-        prefix={
-          " hanch \x1b[1;34m ~\x1b[0m \x1b[1;32m  main\x1b[0m \x1b[0;32m❯\x1b[0m"
-        }
-        onCommand={(command) => {
-          setCurrentHistory(-1);
-          const old = getHistory().content;
-          setFile({
-            name: ".zsh_history",
-            content: old === "" ? command : `${old}\n${command}`,
-          });
+      <div
+        style={{
+          padding: 10,
+          borderBottom: "1px solid #777",
         }}
-        upperHistory={() => {
-          const histories = getHistory().content?.split("\n") || [];
-          const nextHistory = currentHistory + 1;
-          setCurrentHistory(Math.min(nextHistory, histories.length - 1));
-          if (nextHistory <= histories.length - 1) {
-            return histories[histories.length - 1 - nextHistory];
+      >
+        <Terminal
+          width="calc(100vw - 20px)"
+          height="calc(100vh - 90px)"
+          prefix={
+            " hanch \x1b[1;34m ~\x1b[0m \x1b[1;32m  main\x1b[0m \x1b[0;32m❯\x1b[0m"
           }
-          return histories[0];
-        }}
-        lowerHistory={() => {
-          const histories = getHistory().content?.split("\n") || [];
-          const nextHistory = currentHistory - 1;
-          setCurrentHistory(Math.max(nextHistory, 0));
-          if (nextHistory >= 0) {
-            return histories[histories.length - 1 - nextHistory];
-          }
-          return "";
-        }}
-        initializer={async (term) => {
-          term.focus();
-          term.write("Loading ");
-          for (let i = 0; i < 2; i++) {
-            for (let j = 0; j < 3; j++) {
-              term.write(".");
-              await sleep(300);
+          onCommand={(command) => {
+            setCurrentHistory(-1);
+            const old = getHistory().content;
+            setFile({
+              name: ".zsh_history",
+              content: old === "" ? command : `${old}\n${command}`,
+            });
+          }}
+          upperHistory={() => {
+            const histories = getHistory().content?.split("\n") || [];
+            const nextHistory = currentHistory + 1;
+            setCurrentHistory(Math.min(nextHistory, histories.length - 1));
+            if (nextHistory <= histories.length - 1) {
+              return histories[histories.length - 1 - nextHistory];
             }
-            erase(term, 3);
-          }
-          erase(term, 30);
-          term.write(title);
-        }}
-        commands={{
-          help: (args, term) => {
-            term.write(
-              `Available commands:\n\n  - help\n  - clear\n  - ls\n  - cat\n  - resume`
-            );
-            return 0;
-          },
-          clear: (args, term) => {
-            term.clear();
-            return 0;
-          },
-          ls: createCommandLs(files),
-          cat: createCommandCat(files),
-          resume: async (args, term) => {
-            for (const section of [educations, experiences, contact]) {
-              const [header, body] = section.content.split("---");
-              for (const line of header.split("\n")) {
-                term.writeln(line);
-                await sleep(100);
+            return histories[0];
+          }}
+          lowerHistory={() => {
+            const histories = getHistory().content?.split("\n") || [];
+            const nextHistory = currentHistory - 1;
+            setCurrentHistory(Math.max(nextHistory, 0));
+            if (nextHistory >= 0) {
+              return histories[histories.length - 1 - nextHistory];
+            }
+            return "";
+          }}
+          initializer={async (term) => {
+            term.focus();
+            term.write("Loading ");
+            for (let i = 0; i < 2; i++) {
+              for (let j = 0; j < 3; j++) {
+                term.write(".");
+                await sleep(300);
               }
-              for (const paragraph of body.split("\n\n")) {
-                for (const line of paragraph.split("\n")) {
-                  for (const character of line.split("")) {
-                    term.write(character);
-                    await sleep(Math.random() * 50 + 10);
+              erase(term, 3);
+            }
+            erase(term, 30);
+            term.write(title);
+          }}
+          commands={{
+            help: (args, term) => {
+              term.write(
+                `Available commands:\n\n  - help\n  - clear\n  - ls\n  - cat\n  - resume`
+              );
+              return 0;
+            },
+            clear: (args, term) => {
+              term.clear();
+              return 0;
+            },
+            ls: createCommandLs(files),
+            cat: createCommandCat(files),
+            resume: async (args, term) => {
+              for (const section of [educations, experiences, contact]) {
+                const [header, body] = section.content.split("---");
+                for (const line of header.split("\n")) {
+                  term.writeln(line);
+                  await sleep(100);
+                }
+                for (const paragraph of body.split("\n\n")) {
+                  for (const line of paragraph.split("\n")) {
+                    for (const character of line.split("")) {
+                      term.write(character);
+                      await sleep(Math.random() * 50 + 10);
+                    }
+                    term.writeln("");
+                    await sleep(50);
                   }
                   term.writeln("");
-                  await sleep(50);
+                  await sleep(500);
                 }
-                term.writeln("");
-                await sleep(500);
+                await sleep(3000);
               }
-              await sleep(3000);
+              return 0;
+            },
+          }}
+          autoComplete={(line, term) => {
+            if (line.startsWith("cat ")) {
+              const matchingfiles = files.filter((f) =>
+                f.name.startsWith(line.slice(4))
+              );
+              if (matchingfiles.length === 1) {
+                return `cat ${matchingfiles[0].name}`;
+              }
+            } else if (line.startsWith("ls ")) {
+              const matchingfiles = files.filter(
+                (f) => f.directory && f.name.startsWith(line.slice(3))
+              );
+              if (matchingfiles.length === 1) {
+                return `ls ${matchingfiles[0].name}`;
+              }
             }
-            return 0;
-          },
-        }}
-        autoComplete={(line, term) => {
-          if (line.startsWith("cat ")) {
-            const matchingfiles = files.filter((f) =>
-              f.name.startsWith(line.slice(4))
-            );
-            if (matchingfiles.length === 1) {
-              return `cat ${matchingfiles[0].name}`;
-            }
-          } else if (line.startsWith("ls ")) {
-            const matchingfiles = files.filter(
-              (f) => f.directory && f.name.startsWith(line.slice(3))
-            );
-            if (matchingfiles.length === 1) {
-              return `ls ${matchingfiles[0].name}`;
-            }
-          }
-          return line;
-        }}
-      />
+            return line;
+          }}
+        />
+      </div>
     </div>
   );
 }
